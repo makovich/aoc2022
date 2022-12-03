@@ -31,4 +31,5 @@ aoc2022_main! {
     day01b,
 
     day02a,
+    day02b,
 }
