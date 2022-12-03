@@ -28,4 +28,5 @@ macro_rules! aoc2022_main {
 
 aoc2022_main! {
     day01a,
+    day01b,
 }
