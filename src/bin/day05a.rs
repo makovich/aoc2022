@@ -12,30 +12,18 @@ pub fn main() {
     const N: usize = 9 + 1;
     let (stks, cmds) = include_str!("day05.input").split_once("\n\n").unwrap();
 
-    let mut stacks = stks
-        .lines()
-        .rev()
-        .skip(1)
-        .map(|line| {
-            line.chars()
-                .skip(1)
-                .step_by(4)
-                .enumerate()
-                .fold([None; N], |mut acc, (i, c)| {
-                    acc[i] = c.is_ascii_alphabetic().then_some(c);
-                    acc
-                })
-        })
-        .fold(vec![vec![]; N], |mut acc, line| {
-            line.as_slice()
-                .iter()
-                .enumerate()
-                .filter(|(_, c)| c.is_some())
-                .for_each(|(i, c)| {
-                    acc[i + 1].push(c.unwrap());
-                });
-            acc
-        });
+    let mut stacks = vec![vec![]; N];
+
+    stks.lines().rev().skip(1).for_each(|line| {
+        line.chars()
+            .skip(1)
+            .step_by(4)
+            .enumerate()
+            .filter(|(_, c)| c.is_ascii_alphabetic())
+            .for_each(|(i, c)| {
+                stacks[i + 1].push(c);
+            })
+    });
 
     cmds.lines()
         .map(|line| {
@@ -43,12 +31,16 @@ pub fn main() {
                 .skip(1)
                 .step_by(2)
                 .filter_map(|s| s.parse().ok())
-                .collect::<Vec<usize>>()
+                .enumerate()
+                .fold([0usize; 3], |mut acc, (i, v)| {
+                    acc[i] = v;
+                    acc
+                })
         })
-        .for_each(|cmd| {
-            (0..cmd[0]).for_each(|_| {
-                stacks[cmd[1]].pop().map(|v| stacks[cmd[2]].push(v));
-            })
+        .for_each(|[n, from, to]| {
+            for _ in 0..n {
+                stacks[from].pop().map(|v| stacks[to].push(v));
+            }
         });
 
     let answ = stacks.iter().skip(1).fold(String::new(), |mut acc, val| {
