@@ -59,4 +59,6 @@ aoc2022_main! {
 
     day11a,
     day11b,
+
+    day12a,
 }
