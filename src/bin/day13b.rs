@@ -1,3 +1,5 @@
+use std::iter::repeat_with;
+
 pub fn main() {
     let pkts = "\
 [1,1,3,1,1]
@@ -26,26 +28,34 @@ pub fn main() {
 
     let pkts = include_str!("day13.input");
 
-    let sum = pkts
+    let prod = pkts
         .replace("10", "A")
-        .split("\n\n")
-        .filter_map(|v| v.split_once('\n'))
-        .enumerate()
-        .map(|(i, (l, r))| (i + 1, (l.as_bytes(), r.as_bytes())))
-        .filter_map(|(i, (mut l, mut r))| loop {
+        .lines()
+        .filter(|l| !l.is_empty())
+        .zip(repeat_with(|| {
+            Box::leak(String::from("[[6]]").into_boxed_str())
+        }))
+        .map(|(p, d)| (p.as_bytes(), d.as_bytes()))
+        .filter_map(|(mut l, mut r)| loop {
             match (l[0] as char, r[0] as char) {
                 (a, b) if a == b => (l, r) = (&l[1..], &r[1..]),
                 (_, ']') => break None,
-                (']', _) => break Some(i),
+                (']', _) => break Some((1, 1)),
                 ('[', _) => (l, r) = (&l[1..], shift(r)),
                 (_, '[') => (l, r) = (shift(l), &r[1..]),
-                (a, b) if a < b => break Some(i),
+                (a, b) if a < b => break Some(((a < '2').into(), 1)),
                 _ => break None,
             }
         })
-        .sum::<usize>();
+        .fold([1, 2], |mut acc, (d1, d2)| {
+            acc[0] += d1;
+            acc[1] += d2;
+            acc
+        })
+        .iter()
+        .product::<usize>();
 
-    println!("{}", sum);
+    println!("{:?}", prod);
 }
 
 fn shift(s: &[u8]) -> &[u8] {
