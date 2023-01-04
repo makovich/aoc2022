@@ -68,4 +68,6 @@ aoc2022_main! {
 
     day14a,
     day14b,
+    day14_bfs,
+    day14_inv,
 }
